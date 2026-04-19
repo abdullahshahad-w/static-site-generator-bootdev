@@ -1,7 +1,7 @@
 import unittest
 from htmlnode import HTMLNode
 
-class text_HTMLNode(unittest.TestCase):
+class TestHTMLNode(unittest.TestCase):
     def test_none(self):
         node = HTMLNode()
         self.assertEqual(node.props_to_html(), "")
