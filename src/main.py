@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 
 from markdown_to_html import extract_title, markdown_to_html_node
 
@@ -21,7 +22,7 @@ def copy_recursive(src, dest):
             copy_recursive(src_path, dest_path)
 
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(
         f"Generating page from {from_path} to {dest_path} using {template_path}"
     )
@@ -35,6 +36,8 @@ def generate_page(from_path, template_path, dest_path):
     page = template.replace("{{ Title }}", title).replace(
         "{{ Content }}", html_content
     )
+    page = page.replace('href="/', f'href="{basepath}')
+    page = page.replace('src="/', f'src="{basepath}')
     dest_dir = os.path.dirname(dest_path)
     if dest_dir:
         os.makedirs(dest_dir, exist_ok=True)
@@ -42,7 +45,7 @@ def generate_page(from_path, template_path, dest_path):
         f.write(page)
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     """Generate an HTML page for every .md file under dir_path_content, mirroring paths under dest_dir_path."""
     for root, _dirs, files in os.walk(dir_path_content):
         for name in files:
@@ -52,13 +55,14 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
             rel = os.path.relpath(from_path, dir_path_content)
             dest_rel = os.path.splitext(rel)[0] + ".html"
             dest_path = os.path.join(dest_dir_path, dest_rel)
-            generate_page(from_path, template_path, dest_path)
+            generate_page(from_path, template_path, dest_path, basepath)
 
 
 def main():
     print("Generating site...")
-    copy_recursive("static", "public")
-    generate_pages_recursive("content", "template.html", "public")
+    basepath = sys.argv[1] if len(sys.argv) > 1 else "/"
+    copy_recursive("static", "docs")
+    generate_pages_recursive("content", "template.html", "docs", basepath)
     print("Site generated successfully!")
 
 
