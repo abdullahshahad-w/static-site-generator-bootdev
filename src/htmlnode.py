@@ -9,7 +9,10 @@ class HTMLNode():
 
     def to_HTML(self):
         raise NotImplementedError
-    
+
+    def to_html(self):
+        return self.to_HTML()
+
     def props_to_HTML(self):
         if not self.props:
             return ""
